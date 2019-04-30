@@ -2,7 +2,7 @@
 		$ ssh bioinfo1@genoma.med.uchile.cl
 		bioinfo12016
 
-El ensamblaje de novo para análisis de RNA-Seq, nos permite estudiar transcriptomas sin la necesidad de una secuencia genómica de referencia. En este protocolo, se describe el uso de la plataforma Trinity para el ensamblaje de transcriptoma a partir de datos de RNA-Seq.
+El ensamblaje De novo para análisis de RNA-Seq, nos permite estudiar transcriptomas sin la necesidad de una secuencia genómica de referencia. En este protocolo, se describe el uso de la plataforma Trinity para el ensamblaje de transcriptoma a partir de datos de RNA-Seq.
 
 <img src="https://user-images.githubusercontent.com/37847170/56938631-fc4a9980-6ad0-11e9-86a1-0f2c019bded4.png" width=500 />
 
@@ -22,7 +22,7 @@ Para más información, visitar: <http://trinityrnaseq.github.io>
 
 ### Datos.
 
-Los datos de RNA-Seq de este práctico corresponden a la levadura Schizosaccharomyces pombe (fission yeast). Se utilizó una librería paired-end a partir de cDNA de 4 muestras:  Sp_log (logarithmic growth), Sp_plat (plateau phase), Sp_hs (heat shock), and Sp_ds (diauxic shift). 
+Los datos de RNA-Seq de este práctico corresponden a la levadura *Schizosaccharomyces pombe*(fission yeast). Se utilizó una librería paired-end a partir de cDNA de 4 muestras:  Sp_log (logarithmic growth), Sp_plat (plateau phase), Sp_hs (heat shock), and Sp_ds (diauxic shift). 
 
 Los datos 'left.fq' y 'right.fq' son archivos FASTQ pareados (Illlumina) para las 4 muestras.  Estos archivos de RNA-Seq, se encuentran en el siguiente subdirectorio. **/RNASeq_Trinity/RNASEQ_data/**.
 
@@ -31,7 +31,7 @@ Tambien se incluye el archivo 'genome.fa', corresponiente al las secuencias del 
 
 ## Ensamble De novo utilizando Trinity
 
-Para generar un ensamble de referencia que luego puede ser utilizado para análisis de expresión diferencial, combinaremos los reads de Schizosaccharomyces pombe de las 4 muestras, en una sola muestras para el ensamble con Trinity. Realizaremos esto con una lista de todos los fastq de inputs pareados delimitados por coma, como en siguiente ejemplo:
+Para generar un ensamble de referencia que luego puede ser utilizado para análisis de expresión diferencial, combinaremos los reads de *Schizosaccharomyces pombe* de las 4 muestras, en una sola muestras para el ensamble con Trinity. Realizaremos esto con una lista de todos los fastq de inputs pareados delimitados por coma, como en siguiente ejemplo:
 
        $ Trinity --seqType fq --SS_lib_type RF --left RNASEQ_data/Sp_log.left.fq.gz,RNASEQ_data/Sp_hs.left.fq.gz,RNASEQ_data/Sp_ds.left.fq.gz,RNASEQ_data/Sp_plat.left.fq.gz --right RNASEQ_data/Sp_log.right.fq.gz,RNASEQ_data/Sp_hs.right.fq.gz,RNASEQ_data/Sp_ds.right.fq.gz,RNASEQ_data/Sp_plat.right.fq.gz --CPU 10 --max_memory 1G --no_salmon
 
@@ -101,7 +101,7 @@ Se observan los siguentes datos. Tengan en cuenta que sus números pueden variar
 
 
 
-## Compare el transcriptoma reconstruido de novo con las anotaciones de referencia 
+## Comparación del transcriptoma reconstruido de novo con las anotaciones de referencia 
 
 ### a. Alinear los transcritos al genoma utilizando GMAP
 
@@ -121,26 +121,24 @@ Convierta a un formato BAM (sam binario) ordenado por coordenadas de la siguient
 
 Ordene los reads del archivo bam por coordenadas:
 
-    $ samtools sort -o trinity_gmap -O BAM trinity_gmap.bam
+    $ samtools sort -o trinity_gmap_sorted.bam -O BAM trinity_gmap.bam
 
 Ahora indexe el archivo bam para poder visualizar los datos en IGV.
 
-    $ samtools index trinity_gmap
+    $ samtools index trinity_gmap_sorted.bam
 
 ### b.  Alinear los reads de RNA-seq al genoma utilizando Tophat
 
 A continuación, se alinea el conjunto de lecturas combinadas con el genoma, para que podamos ver cómo los datos de entrada coinciden con los contigs ensamblados por Trinity.
 
-Preparamos el genoma para ejecutar tophat2
+Preparamos el genoma para ejecutar tophat
 
     $ bowtie2-build /GENOME_data/genome.fa genome 
 
 Ahora, ejecutamos tophat con el siguiente comando.
 
 	  $ cd /shared/bioinfo1/Ensamble_Transcriptoma_Tutorial/RNASeq_Trinity/
-     $ tophat2 -I 300 -i 20 genome \
-         /RNASEQ_data/Sp_log.left.fq.gz,/RNASEQ_data/Sp_hs.left.fq.gz,/RNASEQ_data/Sp_ds.left.fq.gz,/RNASEQ_data/Sp_plat.left.fq.gz \
-         /RNASEQ_data/Sp_log.right.fq.gz,/RNASEQ_data/Sp_hs.right.fq.gz,/RNASEQ_data/Sp_ds.right.fq.gz,/RNASEQ_data/Sp_plat.right.fq.gz
+     $ tophat -I 300 -i 20 genome RNASEQ_data/Sp_log.left.fq.gz,RNASEQ_data/Sp_hs.left.fq.gz,RNASEQ_data/Sp_ds.left.fq.gz,RNASEQ_data/Sp_plat.left.fq.gz,RNASEQ_data/Sp_log.right.fq.gz,RNASEQ_data/Sp_hs.right.fq.gz,RNASEQ_data/Sp_ds.right.fq.gz,RNASEQ_data/Sp_plat.right.fq.gz
 
 Indexe el archivo bam obtenido por tophat para la vizualización en IGV:
 
@@ -148,10 +146,10 @@ Indexe el archivo bam obtenido por tophat para la vizualización en IGV:
 
 ### c. Visualice todos los datos obtenidos utilizando IGV.
 
-    % igv.sh -g `pwd`/GENOME_data/genome.fa `pwd`/GENOME_data/genes.bed,`pwd`/tophat_out/accepted_hits.bam,`pwd`/trinity_gmap.bam
+    % igv.sh -g /GENOME_data/genome.fa /GENOME_data/genes.bed,/tophat_out/accepted_hits.bam,/trinity_gmap_sorted.bam
 
 <img src="https://raw.githubusercontent.com/wiki/trinityrnaseq/RNASeq_Trinity_Tuxedo_Workshop/images/TrinityWorkshop/IGV_trinity_and_reads.png" width=450 />
 
-¿Trinity reconstruye total o parcialmente el transcriptoma de referencia de Schizosaccharomyces pombe, se producen estructuras correctas según la alineación con el genoma?
+¿Trinity reconstruye total o parcialmente el transcriptoma de referencia de *Schizosaccharomyces pombe*, se producen estructuras correctas según la alineación con el genoma?
 
 ¿Hay ejemplos en los que el ensamblaje de novo resuelva los intrones que no se resolvieron de manera similar mediante las alineaciones de las lecturas cortas y viceversa?
