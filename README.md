@@ -1,8 +1,8 @@
-# Ensamblaje De novo de Transcriptomas.
+# Ensamblaje De novo de transcriptomas.
 		$ ssh bioinfo1@genoma.med.uchile.cl
 		bioinfo12016
 
-El ensamblaje de novo para análisis de RNA-Seq, nos permite estudiar transcriptomas sin la necesidad de una secuencia genómica de referencia. En este protocolo, describimos el uso de la plataforma Trinity para el ensamblaje de transcritos a partir de datos de RNA-Seq.
+El ensamblaje de novo para análisis de RNA-Seq, nos permite estudiar transcriptomas sin la necesidad de una secuencia genómica de referencia. En este protocolo, se describe el uso de la plataforma Trinity para el ensamblaje de transcriptoma a partir de datos de RNA-Seq.
 
 <img src="https://user-images.githubusercontent.com/37847170/56938631-fc4a9980-6ad0-11e9-86a1-0f2c019bded4.png" width=500 />
 
@@ -10,10 +10,10 @@ El ensamblaje de novo para análisis de RNA-Seq, nos permite estudiar transcript
 
 A continuación realizaremos los siguientes análisis. 
 
-* Generación de un ensamble de RNA-Seq (de novo) utilizando Trinity
-* Inspeccionar el ensamble en el contexto de un genoma de referencia.
-* Mapeo de lecturas y transcritos de Trinity al un genoma de referencia.
-* Visualización de las lecturas y transcritos alineados.
+* Generación de un ensamble De novo utilizando Trinity
+* Inspeción del ensamble con respecto al genoma de referencia.
+* Mapeo de lecturas y transcritos (obtenidos por Trinity) a un genoma de referencia.
+* Visualización de las lecturas y contigs alineados.
 
         $ cd /shared/bioinfo1/Ensamble_Transcriptoma_Tutorial/RNASeq_Trinity
         $ Trinity
@@ -22,21 +22,18 @@ Para más información, visitar: <http://trinityrnaseq.github.io>
 
 ### Datos.
 
-Los datos de RNA-Seq de este práctico corresponden a la levadura Schizosaccharomyces pombe (fission yeast). Librería paired-end a partir de cDNA, correspondiente a 4 muestras:  Sp_log (logarithmic growth), Sp_plat (plateau phase), Sp_hs (heat shock), and Sp_ds (diauxic shift). 
+Los datos de RNA-Seq de este práctico corresponden a la levadura Schizosaccharomyces pombe (fission yeast). Se utilizó una librería paired-end a partir de cDNA de 4 muestras:  Sp_log (logarithmic growth), Sp_plat (plateau phase), Sp_hs (heat shock), and Sp_ds (diauxic shift). 
 
-Los datos 'left.fq' y 'right.fq' son archivos FASTQ pareados, Illlumina para las 4 muestras.  Estos archivos de RNA-Seq, se encuentran en el siguiente subdirectorio. **/RNASeq_Trinity/RNASEQ_data/**.
+Los datos 'left.fq' y 'right.fq' son archivos FASTQ pareados (Illlumina) para las 4 muestras.  Estos archivos de RNA-Seq, se encuentran en el siguiente subdirectorio. **/RNASeq_Trinity/RNASEQ_data/**.
 
-Tambien se incluyen el archivo 'genome.fa' , corresponiente al las secuencias del genoma, y la anotacion de los genes de referencia  ('genes.bed' o 'genes.gff3'). Estos archivos se encuentran en el siguiente subdirectorio **/RNASeq_Trinity/GENOME_data/**.  
+Tambien se incluye el archivo 'genome.fa', corresponiente al las secuencias del genoma, y los archivos anotación de los genes de referencia ('genes.bed' o 'genes.gff3'). Estos, se encuentran en el siguiente subdirectorio **/RNASeq_Trinity/GENOME_data/**.  
 
 
 ## Ensamble De novo utilizando Trinity
 
-Para generar un ensamble de referencia que luego puede ser utilizado para análisis de expresión diferencial, combinaremos los reads de Schizosaccharomyces pombe de las 4 muestras (diferentes condiciones), en una sola muestras para el emsable con Trinity. Realizaremos esto, con una lista de todos los fastq de inputs pareados delimitados por coma, como en siguiente ejemplo:
+Para generar un ensamble de referencia que luego puede ser utilizado para análisis de expresión diferencial, combinaremos los reads de Schizosaccharomyces pombe de las 4 muestras, en una sola muestras para el ensamble con Trinity. Realizaremos esto con una lista de todos los fastq de inputs pareados delimitados por coma, como en siguiente ejemplo:
 
-       %   ${TRINITY_HOME}/Trinity --seqType fq --SS_lib_type RF  \
-               --left RNASEQ_data/Sp_log.left.fq.gz,RNASEQ_data/Sp_hs.left.fq.gz,RNASEQ_data/Sp_ds.left.fq.gz,RNASEQ_data/Sp_plat.left.fq.gz \
-               --right RNASEQ_data/Sp_log.right.fq.gz,RNASEQ_data/Sp_hs.right.fq.gz,RNASEQ_data/Sp_ds.right.fq.gz,RNASEQ_data/Sp_plat.right.fq.gz \
-               --CPU 2 --max_memory 1G
+       $ Trinity --seqType fq --SS_lib_type RF --left RNASEQ_data/Sp_log.left.fq.gz,RNASEQ_data/Sp_hs.left.fq.gz,RNASEQ_data/Sp_ds.left.fq.gz,RNASEQ_data/Sp_plat.left.fq.gz --right RNASEQ_data/Sp_log.right.fq.gz,RNASEQ_data/Sp_hs.right.fq.gz,RNASEQ_data/Sp_ds.right.fq.gz,RNASEQ_data/Sp_plat.right.fq.gz --CPU 10 --max_memory 1G --no_salmon
 
 La ejecución de Trinity en este conjunto de datos puede tardar entre 10 y 15 minutos. Lo verás progresar a través de varias etapas, comenzando con Jellyfish para generar el catálogo k-mer, luego seguido por Inchworm, Chrysalis, y finalmente Butterfly. La ejecución de un trabajo típico de Trinity requiere ~ 1 hora y ~ 1G RAM por ~ 1 millón de lecturas de PE.
 
@@ -44,7 +41,7 @@ El ensamble de transcriptoma se encuentra en el siguiente archivo de salida. ‘
 
 Para ver las primeras lineas del archivo de salida, puedes utilizar el siguiente comando:
 
-     %   head trinity_out_dir/Trinity.fasta
+     $   head trinity_out_dir/Trinity.fasta
 
     >TRINITY_DN0_c0_g1_i1 len=1894 path=[1872:0-1893] [-1, 1872, -2]
     GTATACTGAGGTTTATTGCCTGTAACGGGCAAACTCGAGCAGTTCAATCACGAGGAGATT
@@ -62,7 +59,7 @@ Para ver las primeras lineas del archivo de salida, puedes utilizar el siguiente
 
 Algunas estadísticas básicas del ensamble de Trinity:
 
-     % $TRINITY_HOME/util/TrinityStats.pl trinity_out_dir/Trinity.fasta
+     $ /opt/anaconda3/bin/TrinityStats.pl trinity_out_dir/Trinity.fasta
 
 Se observan los siguentes datos. Tengan en cuenta que sus números pueden variar ligeramente, ya que los resultados del ensamble no son deterministas.
 
@@ -106,32 +103,29 @@ Se observan los siguentes datos. Tengan en cuenta que sus números pueden variar
 
 ## Compare el transcriptoma reconstruido de novo con las anotaciones de referencia 
 
-Since we happen to have a reference genome and a set of reference transcript annotations that correspond to this data set, we can align the Trinity contigs to the genome and examine them in the genomic context.
-
 ### a. Alinear los transcritos al genoma utilizando GMAP
 
 Primero, prepare la región genómica para la alineación mediante GMAP de la siguiente manera:
 
-    % gmap_build -d genome -D . -k 13 GENOME_data/genome.fa
-
+    $ gmap_build -d genome -D . -k 13 GENOME_data/genome.fa
 
 Ahora, debemos alinear los transcriptos de Trinity con el genoma, obtenemos como resultado un archivo en formato SAM, lo que simplificará la visualización de los datos.
 
-    % gmap -n 0 -D . -d genome trinity_out_dir/Trinity.fasta -f samse > trinity_gmap.sam
+    $ gmap -n 0 -D . -d genome trinity_out_dir/Trinity.fasta -f samse > trinity_gmap.sam
 
 Tenga en cuenta que es probable que encuentre mensajes de advertencia como "No se encontraron rutas para comp42_c0_seq1", lo que significa que GMAP no pudo encontrar una alineación de alta puntuación de ese transcrito con las secuencias del genoma.
 
 Convierta a un formato BAM (sam binario) ordenado por coordenadas de la siguiente manera:
 
-    % samtools view -Sb trinity_gmap.sam > trinity_gmap.bam
+    $ samtools view -Sb trinity_gmap.sam > trinity_gmap.bam
 
 Ordene los reads del archivo bam por coordenadas:
 
-    % samtools sort trinity_gmap.bam trinity_gmap
+    $ samtools sort -o trinity_gmap -O BAM trinity_gmap.bam
 
 Ahora indexe el archivo bam para poder visualizar los datos en IGV.
 
-    % samtools index trinity_gmap.bam
+    $ samtools index trinity_gmap
 
 ### b.  Alinear los reads de RNA-seq al genoma utilizando Tophat
 
@@ -139,23 +133,22 @@ A continuación, se alinea el conjunto de lecturas combinadas con el genoma, par
 
 Preparamos el genoma para ejecutar tophat2
 
-    % bowtie2-build GENOME_data/genome.fa genome 
+    $ bowtie2-build /GENOME_data/genome.fa genome 
 
 Ahora, ejecutamos tophat con el siguiente comando.
 
 	  $ cd /shared/bioinfo1/Ensamble_Transcriptoma_Tutorial/RNASeq_Trinity/
      $ tophat2 -I 300 -i 20 genome \
-         RNASEQ_data/Sp_log.left.fq.gz,RNASEQ_data/Sp_hs.left.fq.gz,RNASEQ_data/Sp_ds.left.fq.gz,RNASEQ_data/Sp_plat.left.fq.gz \
-         RNASEQ_data/Sp_log.right.fq.gz,RNASEQ_data/Sp_hs.right.fq.gz,RNASEQ_data/Sp_ds.right.fq.gz,RNASEQ_data/Sp_plat.right.fq.gz
+         /RNASEQ_data/Sp_log.left.fq.gz,/RNASEQ_data/Sp_hs.left.fq.gz,/RNASEQ_data/Sp_ds.left.fq.gz,/RNASEQ_data/Sp_plat.left.fq.gz \
+         /RNASEQ_data/Sp_log.right.fq.gz,/RNASEQ_data/Sp_hs.right.fq.gz,/RNASEQ_data/Sp_ds.right.fq.gz,/RNASEQ_data/Sp_plat.right.fq.gz
 
 Indexe el archivo bam obtenido por tophat para la vizualización en IGV:
 
-    % samtools index tophat_out/accepted_hits.bam
+    $ samtools index tophat_out/accepted_hits.bam
 
 ### c. Visualice todos los datos obtenidos utilizando IGV.
 
     % igv.sh -g `pwd`/GENOME_data/genome.fa `pwd`/GENOME_data/genes.bed,`pwd`/tophat_out/accepted_hits.bam,`pwd`/trinity_gmap.bam
-
 
 <img src="https://raw.githubusercontent.com/wiki/trinityrnaseq/RNASeq_Trinity_Tuxedo_Workshop/images/TrinityWorkshop/IGV_trinity_and_reads.png" width=450 />
 
